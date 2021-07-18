@@ -88,7 +88,7 @@ static void m_bsp_i2c_init(void)
   {
     .scl                = IO_I2C0_SCL,
     .sda                = IO_I2C0_SDA,
-    .frequency          = NRF_DRV_TWI_FREQ_400K,
+    .frequency          = NRF_DRV_TWI_FREQ_100K,
     .interrupt_priority = APP_IRQ_PRIORITY_HIGH,
     .clear_bus_init     = false
   };

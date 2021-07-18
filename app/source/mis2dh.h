@@ -26,6 +26,59 @@ extern "C" {
 
 /* Public enumerate/structure ----------------------------------------- */
 /**
+ * @brief MIS2DH axis enable enum
+ */
+typedef enum
+{
+   MIS2DH_AXIS_X_ENABLE   = 0x01
+  ,MIS2DH_AXIS_Y_ENABLE   = 0x02
+  ,MIS2DH_AXIS_Z_ENABLE   = 0x04
+  ,MIS2DH_AXIS_XYZ_ENABLE = 0x07
+}
+mis2dh_axis_enable_t;
+
+/**
+ * @brief MIS2DH refresh rate enum
+ */
+typedef enum
+{
+   MIS2DH_RF_RATE_PW_DOWN = 0X00
+  ,MIS2DH_RF_RATE_1HZ     = 0X01
+  ,MIS2DH_RF_RATE_10HZ    = 0X02
+  ,MIS2DH_RF_RATE_25HZ    = 0X03
+  ,MIS2DH_RF_RATE_50HZ    = 0X04
+  ,MIS2DH_RF_RATE_100HZ   = 0X05
+  ,MIS2DH_RF_RATE_200HZ   = 0X06
+  ,MIS2DH_RF_RATE_400HZ   = 0X07
+  ,MIS2DH_RF_RATE_1_620HZ = 0X08
+  ,MIS2DH_RF_RATE_1_344HZ = 0X09
+}
+mis2dh_refresh_rate_t;
+
+/**
+ * @brief MIS2DH resolution enum
+ */
+typedef enum
+{
+   MIS2DH_RES_VALUE_8_BIT  = 0X00
+  ,MIS2DH_RES_VALUE_10_BIT = 0X01
+  ,MIS2DH_RES_VALUE_12_BIT = 0X02
+}
+mis2dh_resolution_t;
+
+/**
+ * @brief MIS2DH scale enum
+ */
+typedef enum
+{
+   MIS2DH_SCALE_2G  = 0X00
+  ,MIS2DH_SCALE_4G  = 0X01
+  ,MIS2DH_SCALE_8G  = 0X02
+  ,MIS2DH_SCALE_16G = 0X03
+}
+mis2dh_scale_t;
+
+/**
  * @brief MIS2DH raw data
  */
 typedef struct
@@ -80,7 +133,7 @@ base_status_t mis2dh_init(mis2dh_t *me);
  * - BS_OK
  * - BS_ERROR
  */
-base_status_t mis2dh_set_resolution(mis2dh_t *me, uint8_t _res);
+base_status_t mis2dh_set_resolution(mis2dh_t *me, mis2dh_resolution_t resolution);
 
 /**
  * @brief         MIS2DH set scale
@@ -95,14 +148,13 @@ base_status_t mis2dh_set_resolution(mis2dh_t *me, uint8_t _res);
  * - BS_OK
  * - BS_ERROR
  */
-base_status_t mis2dh_set_scale(mis2dh_t *me, uint8_t _sc);
+base_status_t mis2dh_set_scale(mis2dh_t *me, mis2dh_scale_t scale);
 
 /**
  * @brief         MIS2DH set refresh rate
  *
  * @param[in]     me      Pointer to handle of MIS2DH module.
- * @param[in]     ref      Scale
-
+ * @param[in]     rf_rate Refresh rate
  *
  * @attention     None
  *
@@ -110,7 +162,7 @@ base_status_t mis2dh_set_scale(mis2dh_t *me, uint8_t _sc);
  * - BS_OK
  * - BS_ERROR
  */
-base_status_t mis2dh_set_refresh_rate(mis2dh_t *me, uint8_t _ref);
+base_status_t mis2dh_set_refresh_rate(mis2dh_t *me, mis2dh_refresh_rate_t rf_rate);
 
 /**
  * @brief         MIS2DH get accel raw data
@@ -136,7 +188,7 @@ base_status_t mis2dh_get_raw_data(mis2dh_t *me);
  * - BS_OK
  * - BS_ERROR
  */
-base_status_t mis2dh_enable_axis(mis2dh_t *me, uint8_t axis);
+base_status_t mis2dh_enable_axis(mis2dh_t *me, mis2dh_axis_enable_t axis);
 
 /**
  * @brief         MIS2DH disble axis
@@ -149,7 +201,7 @@ base_status_t mis2dh_enable_axis(mis2dh_t *me, uint8_t axis);
  * - BS_OK
  * - BS_ERROR
  */
-base_status_t mis2dh_disable_axis(mis2dh_t *me, uint8_t axis);
+base_status_t mis2dh_disable_axis(mis2dh_t *me, mis2dh_axis_enable_t axis);
 
 /**
  * @brief         MIS2DH reboot memory

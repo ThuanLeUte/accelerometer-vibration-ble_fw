@@ -28,9 +28,13 @@ base_status_t bsp_accel_init(void)
   m_mis2dh.i2c_read       = bsp_i2c_read;
   m_mis2dh.i2c_write      = bsp_i2c_write;
 
-  mis2dh_init(&m_mis2dh);
+  CHECK_STATUS(mis2dh_init(&m_mis2dh));
+  CHECK_STATUS(mis2dh_enable_axis(&m_mis2dh, MIS2DH_AXIS_XYZ_ENABLE));
+  CHECK_STATUS(mis2dh_set_resolution(&m_mis2dh, MIS2DH_RES_VALUE_12_BIT));
+  CHECK_STATUS(mis2dh_set_refresh_rate(&m_mis2dh, MIS2DH_RF_RATE_400HZ));
+  CHECK_STATUS(mis2dh_set_scale(&m_mis2dh, MIS2DH_SCALE_2G));
 
-  mis2dh_enable_axis(&m_mis2dh, 0x07);
+  return BS_OK;
 }
 
 base_status_t bsp_accel_get_raw_data(mis2dh_raw_data_t *raw_data)

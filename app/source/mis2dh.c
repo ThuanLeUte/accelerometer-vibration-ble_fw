@@ -12,33 +12,11 @@
 
 /* Includes ----------------------------------------------------------- */
 #include "mis2dh.h"
+#include "nrf_log.h"
 
 /* Private defines ---------------------------------------------------- */
 // DEFINING GRAVITATIONAL ACCELERATION CONSTANT (IN EUROPE, CROATIA)
 #define MIS2DH_VALUE_GRAVITY            (9.806)
-
-// DEFINING RESOLUTION (SAME AS POWER MODE, LOW_POWER MEANS 8_BIT_RES, HI_RES MANS 12_BIT_RES)
-#define MIS2DH_VALUE_8_BIT_RES          (0X00)
-#define MIS2DH_VALUE_10_BIT_RES         (0X01)
-#define MIS2DH_VALUE_12_BIT_RES         (0X02)
-
-// DEFINES FOR SELECTING FULL SCALE VALUE
-#define MIS2DH_VALUE_2G_FS              (0B00000000)
-#define MIS2DH_VALUE_4G_FS              (0B00010000)
-#define MIS2DH_VALUE_8G_FS              (0B00100000)
-#define MIS2DH_VALUE_16G_FS             (0B00110000)
-
-// DEFINES FOR SELECTING OUTPUT DATA RATE FREQUENCY
-#define MIS2DH_VALUE_POWER_DOWN         (0B00000000)
-#define MIS2DH_VALUE_1HZ_ODR            (0B00010000)
-#define MIS2DH_VALUE_10HZ_ODR           (0B00100000)
-#define MIS2DH_VALUE_25HZ_ODR           (0B00110000)
-#define MIS2DH_VALUE_50HZ_ODR           (0B01000000)
-#define MIS2DH_VALUE_100HZ_ODR          (0B01010000)
-#define MIS2DH_VALUE_200HZ_ODR          (0B01100000)
-#define MIS2DH_VALUE_400HZ_ODR          (0B01110000)
-#define MIS2DH_VALUE_1620HZ_ODR         (0B10000000)
-#define MIS2DH_VALUE_5376HZ_ODR         (0B10010000)
 
 // DEFINES MIS2DH REGISTERS
 #define MIS2DH_REG_STATUS_REG_AUX       (0X07)
@@ -83,11 +61,6 @@
 // DEFINES MIS2DH IDENTIFIER VALUE
 #define MIS2DH_VALUE_IDENTIFIER         (0X33)
 
-// DEFINES MIS2DH AXIS ENABLE OPTION
-#define MIS2DH_X_AXIS_ENABLE            (0B00000001)
-#define MIS2DH_Y_AXIS_ENABLE            (0B00000010)
-#define MIS2DH_Z_AXIS_ENABLE            (0B00000100)
-
 /* Private enumerate/structure ---------------------------------------- */
 /* Private macros ----------------------------------------------------- */
 /* Public variables --------------------------------------------------- */
@@ -111,13 +84,13 @@ base_status_t mis2dh_init(mis2dh_t *me)
   return BS_OK;
 }
 
-base_status_t mis2dh_set_resolution(mis2dh_t *me, uint8_t resolution)
+base_status_t mis2dh_set_resolution(mis2dh_t *me, mis2dh_resolution_t resolution)
 {
   uint8_t tmp;
 
   switch (resolution)
   {
-    case MIS2DH_VALUE_8_BIT_RES:
+    case MIS2DH_RES_VALUE_8_BIT:
       CHECK_STATUS(m_mis2dh_read_reg(me, MIS2DH_REG_CTRL_REG1, &tmp, 1));
       tmp |= (1 << 3);
       CHECK_STATUS(m_mis2dh_write_reg(me, MIS2DH_REG_CTRL_REG1, &tmp, 1));
@@ -127,7 +100,7 @@ base_status_t mis2dh_set_resolution(mis2dh_t *me, uint8_t resolution)
       CHECK_STATUS(m_mis2dh_write_reg(me, MIS2DH_REG_CTRL_REG4, &tmp, 1));
       break;
 
-    case MIS2DH_VALUE_10_BIT_RES:
+    case MIS2DH_RES_VALUE_10_BIT:
       CHECK_STATUS(m_mis2dh_read_reg(me, MIS2DH_REG_CTRL_REG1, &tmp, 1));
       tmp &= ~(1 << 3);
       CHECK_STATUS(m_mis2dh_write_reg(me, MIS2DH_REG_CTRL_REG1, &tmp, 1));
@@ -137,9 +110,9 @@ base_status_t mis2dh_set_resolution(mis2dh_t *me, uint8_t resolution)
       CHECK_STATUS(m_mis2dh_write_reg(me, MIS2DH_REG_CTRL_REG4, &tmp, 1));
       break;
 
-    case MIS2DH_VALUE_12_BIT_RES:
+    case MIS2DH_RES_VALUE_12_BIT:
       CHECK_STATUS(m_mis2dh_read_reg(me, MIS2DH_REG_CTRL_REG1, &tmp, 1));
-      tmp |= (1 << 3);
+      tmp |= ~(1 << 3);
       CHECK_STATUS(m_mis2dh_write_reg(me, MIS2DH_REG_CTRL_REG1, &tmp, 1));
 
       CHECK_STATUS(m_mis2dh_read_reg(me, MIS2DH_REG_CTRL_REG4, &tmp, 1));
@@ -154,25 +127,25 @@ base_status_t mis2dh_set_resolution(mis2dh_t *me, uint8_t resolution)
   return BS_OK;
 }
 
-base_status_t mis2dh_set_scale(mis2dh_t *me, uint8_t scale)
+base_status_t mis2dh_set_scale(mis2dh_t *me, mis2dh_scale_t scale)
 {
   uint8_t tmp;
 
   CHECK_STATUS(m_mis2dh_read_reg(me, MIS2DH_REG_CTRL_REG4, &tmp, 1));
   tmp &= 0xCF;
-  tmp |= scale;
+  tmp |= (scale << 4);
   CHECK_STATUS(m_mis2dh_write_reg(me, MIS2DH_REG_CTRL_REG4, &tmp, 1));
 
   return BS_OK;
 }
 
-base_status_t mis2dh_set_refresh_rate(mis2dh_t *me, uint8_t ref)
+base_status_t mis2dh_set_refresh_rate(mis2dh_t *me, mis2dh_refresh_rate_t rf_rate)
 {
   uint8_t tmp;
 
   CHECK_STATUS(m_mis2dh_read_reg(me, MIS2DH_REG_CTRL_REG1, &tmp, 1));
   tmp &= 0x0F;
-  tmp |= ref;
+  tmp |= (rf_rate << 4);
   CHECK_STATUS(m_mis2dh_write_reg(me, MIS2DH_REG_CTRL_REG1, &tmp, 1));
 
   return BS_OK;
@@ -184,15 +157,28 @@ base_status_t mis2dh_get_raw_data(mis2dh_t *me)
   uint8_t data[6];
 
   CHECK_STATUS(m_mis2dh_read_reg(me, MIS2DH_REG_STATUS_REG, &status, 1));
-  status &= 0x08;
-  status >>= 3;
+  NRF_LOG_INFO("Status: %d", status);
 
+  status &= 0x04;
   if (status)
   {
-    CHECK_STATUS(m_mis2dh_read_reg(me, MIS2DH_REG_OUT_X_L, data, 6));
+    CHECK_STATUS(m_mis2dh_read_reg(me, MIS2DH_REG_OUT_X_L, &data[0], 1));
+    CHECK_STATUS(m_mis2dh_read_reg(me, MIS2DH_REG_OUT_X_H, &data[1], 1));
+    CHECK_STATUS(m_mis2dh_read_reg(me, MIS2DH_REG_OUT_Y_L, &data[2], 1));
+    CHECK_STATUS(m_mis2dh_read_reg(me, MIS2DH_REG_OUT_Y_H, &data[3], 1));
+    CHECK_STATUS(m_mis2dh_read_reg(me, MIS2DH_REG_OUT_Z_L, &data[4], 1));
+    CHECK_STATUS(m_mis2dh_read_reg(me, MIS2DH_REG_OUT_Z_H, &data[5], 1));
+
     me->raw_data.x = ((data[1] << 8) + data[0]);
     me->raw_data.y = ((data[3] << 8) + data[2]);
     me->raw_data.z = ((data[5] << 8) + data[4]);
+
+    NRF_LOG_INFO( "Data 0: %d ", data[0]);
+    NRF_LOG_INFO( "Data 1: %d ", data[1]);
+    NRF_LOG_INFO( "Data 2: %d ", data[2]);
+    NRF_LOG_INFO( "Data 3: %d ", data[3]);
+    NRF_LOG_INFO( "Data 4: %d ", data[4]);
+    NRF_LOG_INFO( "Data 5: %d ", data[5]);
   }
   else
   {
@@ -202,7 +188,7 @@ base_status_t mis2dh_get_raw_data(mis2dh_t *me)
   return BS_OK;
 }
 
-base_status_t mis2dh_enable_axis(mis2dh_t *me, uint8_t axis)
+base_status_t mis2dh_enable_axis(mis2dh_t *me, mis2dh_axis_enable_t axis)
 {
   uint8_t tmp;
 
@@ -213,7 +199,7 @@ base_status_t mis2dh_enable_axis(mis2dh_t *me, uint8_t axis)
   return BS_OK;
 }
 
-base_status_t mis2dh_disable_axis(mis2dh_t *me, uint8_t axis)
+base_status_t mis2dh_disable_axis(mis2dh_t *me, mis2dh_axis_enable_t axis)
 {
   uint8_t tmp;
 
