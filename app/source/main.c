@@ -30,17 +30,13 @@
 #include "nrf_pwr_mgmt.h"
 #include "nrf_delay.h"
 
+#include "sys_bm.h"
+#include "sys_temp.h"
 #include "ble_bas.h"
 #include "ble_dis.h"
-#include "ble_blood_oxygen_service.h"
-#include "ble_heart_rate_service.h"
 #include "ble_body_temp_service.h"
 #include "bsp.h"
-#include "sys_temp.h"
-#include "sys_bm.h"
-#include "sys_po.h"
 #include "nrf52832_peripherals.h"
-#include "bsp_lcd.h"
 
 #if defined(UART_PRESENT)
 #include "nrf_uart.h"
@@ -83,9 +79,7 @@
 
 #define DEAD_BEEF                       0xDEADBEEF                                  /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
-/* Private macros ----------------------------------------------------- */
-BLE_BOS_DEF(m_bos);                                                                 /**< BLE BOS service instance. */
-BLE_HRNS_DEF(m_hrns);                                                               /**< BLE HRNS service instance. */
+/* Private macros ----------------------------------------------------- */                                                            /**< BLE HRNS service instance. */
 BLE_BTS_DEF(m_bts);                                                                /**< BLE BTS service instance. */
 BLE_BAS_DEF(m_bas);                                                                 /**< Structure used to identify the battery service. */
 NRF_BLE_GATT_DEF(m_gatt);                                                           /**< GATT module instance. */
@@ -98,8 +92,6 @@ APP_TIMER_DEF(m_battery_timer_id);                                              
 static uint16_t   m_conn_handle          = BLE_CONN_HANDLE_INVALID;                 /**< Handle of the current connection. */
 static ble_uuid_t m_adv_uuids[]          =                                          /**< Universally unique service identifier. */
 {
-  {BLE_UUID_HRNS_SERVICE,               HRNS_SERVICE_UUID_TYPE},
-  // {BLE_UUID_BOS_SERVICE,                BOS_SERVICE_UUID_TYPE},
   {BLE_UUID_BATTERY_SERVICE,            BLE_UUID_TYPE_BLE},
   {BLE_UUID_DEVICE_INFORMATION_SERVICE, BLE_UUID_TYPE_BLE}
 };
@@ -129,12 +121,8 @@ static void body_temp_meas_timeout_handler(void * p_context);
 static void battery_level_update(void);
 static void body_temp_update(void);
 
-#ifdef TEMPERATURE_BOARD
 static void bts_service_init(void);
-#else
-static void bos_service_init(void);
-static void hrns_service_init(void);
-#endif
+
 
 static void bas_service_init(void);
 static void dis_service_init(void);
@@ -160,89 +148,17 @@ int main(void)
 
   bsp_hw_init();          // Bsp init
   sys_bm_init();          // Battery monitor init
-  bsp_lcd_init();         // LCD init
+
 
   // Start execution.
   application_timers_start();
   advertising_start();
 
-#ifdef TEMPERATURE_BOARD
-
   sys_temp_init();         // Temperature sensor init
-
-#else
-
-  sys_po_main();            // Pulse oxigen run
-
-#endif
 
   for (;;)
   {
     idle_state_handle();
-  }
-}
-
-void sys_po_blood_oxygen_notify(uint8_t blood_oxygen)
-{
-  ret_code_t err_code;
-
-  bsp_lcd_display_spo2_number(blood_oxygen);
-
-  err_code = ble_bos_blood_oxygen_update(&m_bos, blood_oxygen, BLE_CONN_HANDLE_ALL);
-  if ((err_code != NRF_SUCCESS) &&
-      (err_code != NRF_ERROR_INVALID_STATE) &&
-      (err_code != NRF_ERROR_RESOURCES) &&
-      (err_code != NRF_ERROR_BUSY) &&
-      (err_code != BLE_ERROR_GATTS_SYS_ATTR_MISSING))
-  {
-    APP_ERROR_HANDLER(err_code);
-  }
-}
-
-void sys_po_heart_rate_notify(uint8_t heart_rate)
-{
-  ret_code_t err_code;
-
-  bsp_lcd_display_heartrate_number(heart_rate);
-
-  err_code = ble_hrns_heart_rate_update(&m_hrns, heart_rate, BLE_CONN_HANDLE_ALL);
-  if ((err_code != NRF_SUCCESS) &&
-      (err_code != NRF_ERROR_INVALID_STATE) &&
-      (err_code != NRF_ERROR_RESOURCES) &&
-      (err_code != NRF_ERROR_BUSY) &&
-      (err_code != BLE_ERROR_GATTS_SYS_ATTR_MISSING))
-  {
-    APP_ERROR_HANDLER(err_code);
-  }
-}
-
-void sys_po_r_data_notify(uint32_t r_data)
-{
-  ret_code_t err_code;
-
-  err_code = ble_bos_r_data_update(&m_bos, r_data, BLE_CONN_HANDLE_ALL);
-  if ((err_code != NRF_SUCCESS) &&
-      (err_code != NRF_ERROR_INVALID_STATE) &&
-      (err_code != NRF_ERROR_RESOURCES) &&
-      (err_code != NRF_ERROR_BUSY) &&
-      (err_code != BLE_ERROR_GATTS_SYS_ATTR_MISSING))
-  {
-    APP_ERROR_HANDLER(err_code);
-  }
-}
-
-void sys_po_ir_data_notify(uint32_t ir_data)
-{
-  ret_code_t err_code;
-
-  err_code = ble_bos_ir_data_update(&m_bos, ir_data, BLE_CONN_HANDLE_ALL);
-  if ((err_code != NRF_SUCCESS) &&
-      (err_code != NRF_ERROR_INVALID_STATE) &&
-      (err_code != NRF_ERROR_RESOURCES) &&
-      (err_code != NRF_ERROR_BUSY) &&
-      (err_code != BLE_ERROR_GATTS_SYS_ATTR_MISSING))
-  {
-    APP_ERROR_HANDLER(err_code);
   }
 }
 
@@ -335,71 +251,6 @@ static void nrf_qwr_error_handler(uint32_t nrf_error)
   APP_ERROR_HANDLER(nrf_error);
 }
 
-#ifndef TEMPERATURE_BOARD
-/**
- * @brief         Function for BOS service init
- *
- * @param[in]     None
- *
- * @attention     None
- *
- * @return        None
- */
-static void bos_service_init(void)
-{
-  uint32_t           err_code;
-  ble_bos_init_t     bos_init;
-
-  // Initialize BOS.
-  memset(&bos_init, 0, sizeof(bos_init));
-
-  bos_init.evt_handler          = NULL;
-  bos_init.support_notification = true;
-  bos_init.p_report_ref         = NULL;
-  bos_init.initial_blood_oxygen = 0;
-
-  // Here the sec Blood oxygen Service can be changed/increased.
-  bos_init.bl_rd_sec        = SEC_OPEN;
-  bos_init.bl_cccd_wr_sec   = SEC_OPEN;
-  bos_init.bl_report_rd_sec = SEC_OPEN;
-
-  err_code = ble_bos_init(&m_bos, &bos_init);
-  APP_ERROR_CHECK(err_code);
-}
-
-/**
- * @brief         Function for HRNS service init
- *
- * @param[in]     None
- *
- * @attention     None
- *
- * @return        None
- */
-static void hrns_service_init(void)
-{
-  uint32_t           err_code;
-  ble_hrns_init_t     hrns_init;
-
-// Initialize HRNS.
-  memset(&hrns_init, 0, sizeof(hrns_init));
-
-  hrns_init.evt_handler          = NULL;
-  hrns_init.support_notification = true;
-  hrns_init.p_report_ref         = NULL;
-  hrns_init.initial_heart_rate   = 0;
-
-  // Here the sec Heart rate Service can be changed/increased.
-  hrns_init.bl_rd_sec        = SEC_OPEN;
-  hrns_init.bl_cccd_wr_sec   = SEC_OPEN;
-  hrns_init.bl_report_rd_sec = SEC_OPEN;
-
-  err_code = ble_hrns_init(&m_hrns, &hrns_init);
-  APP_ERROR_CHECK(err_code);
-}
-
-#else
-
 /**
  * @brief         Function for BTS service init
  *
@@ -430,7 +281,6 @@ static void bts_service_init(void)
   err_code = ble_bts_init(&m_bts, &bts_init);
   APP_ERROR_CHECK(err_code);
 }
-#endif
 
 /**
  * @brief         Function for BAS service init
@@ -508,20 +358,9 @@ static void services_init(void)
   err_code = nrf_ble_qwr_init(&m_qwr, &qwr_init);
   APP_ERROR_CHECK(err_code);
 
-#ifdef TEMPERATURE_BOARD
 
   // Initialize Body temperature Service
   bts_service_init();
-
-#else
-
-  // Initialize Blood oxygen Service
-  bos_service_init();
-
-  // Initialize Heart rate Service
-  hrns_service_init();
-
-#endif
 
   // Initialize Battery Service.
   bas_service_init();
@@ -937,11 +776,6 @@ static void advertising_start(void)
  */
 static void battery_level_meas_timeout_handler(void * p_context)
 {
-  // static bool enable = false;
-
-  // bsp_lcd_display(enable);
-  // enable = ~enable;
-
   UNUSED_PARAMETER(p_context);
   battery_level_update();
 }
@@ -1045,14 +879,9 @@ static void application_timers_start(void)
   ret_code_t err_code;
 
   // Start application timers.
-#ifdef TEMPERATURE_BOARD
-
   err_code = app_timer_start(m_body_temp_timer_id, BODY_TEMP_MEAS_INTERVAL, NULL);
   APP_ERROR_CHECK(err_code);
 
-#else
-
-#endif
 
   err_code = app_timer_start(m_battery_timer_id, BODY_TEMP_MEAS_INTERVAL, NULL);
   APP_ERROR_CHECK(err_code);

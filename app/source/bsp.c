@@ -132,15 +132,6 @@ static void m_bsp_gpio_init(void)
   err_code = nrf_drv_gpiote_init();
   APP_ERROR_CHECK(err_code);
 
-  // OB1203 pin config
-  nrf_drv_gpiote_in_config_t in_config = GPIOTE_CONFIG_IN_SENSE_HITOLO(true);
-  in_config.pull = NRF_GPIO_PIN_PULLUP;
-
-  err_code = nrf_drv_gpiote_in_init(IO_OB1203_INTR, &in_config, bsp_intr_pin_handler);
-  APP_ERROR_CHECK(err_code);
-
-  nrf_drv_gpiote_in_event_enable(IO_OB1203_INTR, true);
-
   // LCD pin config
   nrf_drv_gpiote_out_config_t out_config = NRFX_GPIOTE_CONFIG_OUT_TASK_TOGGLE(true);
   err_code = nrf_drv_gpiote_out_init(IO_LCD_BACKLIGHT, &out_config);
