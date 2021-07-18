@@ -22,7 +22,7 @@ extern "C" {
 #include "bsp.h"
 
 /* Public defines ----------------------------------------------------- */
-#define MIS2DH_I2C_ADDR                       (0xC0 >> 1)
+#define MIS2DH_I2C_ADDR                       (0x19) // 7 Bits
 
 /* Public enumerate/structure ----------------------------------------- */
 /**
@@ -46,10 +46,10 @@ typedef struct
   mis2dh_raw_data_t raw_data;
 
   // Read n-bytes from device's internal address <reg_addr> via I2C bus
-  base_status_t (*i2c_read) (uint8_t slave_addr, uint8_t reg_addr, uint8_t *data, uint32_t len);
+  int (*i2c_read) (uint8_t slave_addr, uint8_t reg_addr, uint8_t *data, uint32_t len);
 
   // Write n-bytes from device's internal address <reg_addr> via I2C bus
-  base_status_t (*i2c_write) (uint8_t slave_addr, uint8_t reg_addr, uint8_t *data, uint32_t len);
+  int (*i2c_write) (uint8_t slave_addr, uint8_t reg_addr, uint8_t *data, uint32_t len);
 }
 mis2dh_t;
 

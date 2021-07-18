@@ -11,7 +11,7 @@
  */
 
 /* Includes ----------------------------------------------------------- */
-#include "bsp_accelero.h"
+#include "bsp_accel.h"
 
 /* Private defines ---------------------------------------------------- */
 /* Private enumerate/structure ---------------------------------------- */
@@ -28,14 +28,14 @@ base_status_t bsp_accel_init(void)
   m_mis2dh.i2c_read       = bsp_i2c_read;
   m_mis2dh.i2c_write      = bsp_i2c_write;
 
-  mis2dh_init(&m_mis2dh);
+  return mis2dh_init(&m_mis2dh);
 }
 
 base_status_t bsp_accel_get_raw_data(mis2dh_raw_data_t *raw_data)
 {
   CHECK_STATUS(mis2dh_get_raw_data(&m_mis2dh));
 
-  raw_data = &m_mis2dh.raw_data;
+  memcpy(raw_data, &m_mis2dh.raw_data, sizeof(m_mis2dh.raw_data));
 
   return BS_OK;
 }

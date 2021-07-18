@@ -159,7 +159,7 @@ base_status_t mis2dh_set_scale(mis2dh_t *me, uint8_t scale)
   uint8_t tmp;
 
   CHECK_STATUS(m_mis2dh_read_reg(me, MIS2DH_REG_CTRL_REG4, &tmp, 1));
-  tmp &= (0B11001111);
+  tmp &= 0xCF;
   tmp |= scale;
   CHECK_STATUS(m_mis2dh_write_reg(me, MIS2DH_REG_CTRL_REG4, &tmp, 1));
 
@@ -171,7 +171,7 @@ base_status_t mis2dh_set_refresh_rate(mis2dh_t *me, uint8_t ref)
   uint8_t tmp;
 
   CHECK_STATUS(m_mis2dh_read_reg(me, MIS2DH_REG_CTRL_REG1, &tmp, 1));
-  tmp &= (0B00001111);
+  tmp &= 0x0F;
   tmp |= ref;
   CHECK_STATUS(m_mis2dh_write_reg(me, MIS2DH_REG_CTRL_REG1, &tmp, 1));
 
@@ -184,7 +184,7 @@ base_status_t mis2dh_get_raw_data(mis2dh_t *me)
   uint8_t data[6];
 
   CHECK_STATUS(m_mis2dh_read_reg(me, MIS2DH_REG_STATUS_REG, &status, 1));
-  status &= (0B00001000);
+  status &= 0x08;
   status >>= 3;
 
   if (status)
@@ -226,7 +226,7 @@ base_status_t mis2dh_disable_axis(mis2dh_t *me, uint8_t axis)
 
 base_status_t mis2dh_reboot_memory(mis2dh_t *me)
 {
-  uint8_t tmp = (0B10000000);
+  uint8_t tmp = 0x80;
 
   CHECK_STATUS(m_mis2dh_write_reg(me, MIS2DH_REG_CTRL_REG5, &tmp, 1));
 
@@ -235,7 +235,7 @@ base_status_t mis2dh_reboot_memory(mis2dh_t *me)
 
 base_status_t mis2dh_enter_normal_mode(mis2dh_t *me)
 {
-  uint8_t tmp = (0B00000000);
+  uint8_t tmp = 0x00;
 
   CHECK_STATUS(m_mis2dh_write_reg(me, MIS2DH_REG_CTRL_REG5, &tmp, 1));
 
