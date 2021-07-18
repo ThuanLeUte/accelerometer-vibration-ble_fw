@@ -28,7 +28,9 @@ base_status_t bsp_accel_init(void)
   m_mis2dh.i2c_read       = bsp_i2c_read;
   m_mis2dh.i2c_write      = bsp_i2c_write;
 
-  return mis2dh_init(&m_mis2dh);
+  mis2dh_init(&m_mis2dh);
+
+  mis2dh_enable_axis(&m_mis2dh, 0x07);
 }
 
 base_status_t bsp_accel_get_raw_data(mis2dh_raw_data_t *raw_data)
