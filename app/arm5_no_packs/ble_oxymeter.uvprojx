@@ -423,6 +423,16 @@
               <FileType>1</FileType>
               <FilePath>..\source\mis2dh.c</FilePath>
             </File>
+            <File>
+              <FileName>bsp_mag.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\bsp_mag.c</FilePath>
+            </File>
+            <File>
+              <FileName>hmc5883l.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\hmc5883l.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -4079,6 +4089,16 @@
               <FileName>mis2dh.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\mis2dh.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_mag.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\bsp_mag.c</FilePath>
+            </File>
+            <File>
+              <FileName>hmc5883l.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\hmc5883l.c</FilePath>
             </File>
           </Files>
         </Group>

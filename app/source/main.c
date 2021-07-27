@@ -37,6 +37,7 @@
 #include "ble_body_temp_service.h"
 #include "bsp.h"
 #include "bsp_accel.h"
+#include "bsp_mag.h"
 #include "nrf52832_peripherals.h"
 
 #if defined(UART_PRESENT)
@@ -154,7 +155,8 @@ int main(void)
   application_timers_start();
   advertising_start();
 
-  bsp_accel_init();
+  // bsp_accel_init();
+  bsp_mag_init();
 
   for (;;)
   {
@@ -850,11 +852,13 @@ static void body_temp_update(void)
   float m_human_body_temp = 0;
   mis2dh_raw_data_t raw_data;
 
-  bsp_accel_get_raw_data(&raw_data);
+  // bsp_accel_get_raw_data(&raw_data);
+  bsp_mag_read(&raw_data.x, &raw_data.y, &raw_data.z);
 
   NRF_LOG_INFO( "X Axis: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(raw_data.x));
   NRF_LOG_INFO( "Y Axis: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(raw_data.y));
   NRF_LOG_INFO( "Z Axis: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(raw_data.z));
+
 
   err_code = ble_bts_body_temp_update(&m_bts, m_human_body_temp, BLE_CONN_HANDLE_ALL);
   if ((err_code != NRF_SUCCESS) &&
