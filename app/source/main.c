@@ -37,6 +37,7 @@
 #include "ble_body_temp_service.h"
 #include "bsp.h"
 #include "bsp_accel.h"
+#include "bsp_imu.h"
 #include "nrf52832_peripherals.h"
 
 #if defined(UART_PRESENT)
@@ -154,7 +155,8 @@ int main(void)
   application_timers_start();
   advertising_start();
 
-  bsp_accel_init();
+  // bsp_accel_init();
+  bsp_imu_init();
 
   for (;;)
   {
@@ -849,12 +851,23 @@ static void body_temp_update(void)
   ret_code_t err_code;
   float m_human_body_temp = 0;
   mis2dh_raw_data_t raw_data;
+  mpu9250_scaled_data_t accel_scaled;
+  mpu9250_scaled_data_t gyro_scaled;
 
-  bsp_accel_get_raw_data(&raw_data);
+  // bsp_accel_get_raw_data(&raw_data);
+  bsp_gyro_accel_get(&accel_scaled, &gyro_scaled);
 
-  NRF_LOG_INFO( "X Axis: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(raw_data.x));
-  NRF_LOG_INFO( "Y Axis: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(raw_data.y));
-  NRF_LOG_INFO( "Z Axis: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(raw_data.z));
+  NRF_LOG_INFO( "Accel X Axis: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(accel_scaled.x));
+  NRF_LOG_INFO( "Accel Y Axis: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(accel_scaled.y));
+  NRF_LOG_INFO( "Accel Z Axis: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(accel_scaled.z));
+
+  NRF_LOG_INFO("++++++++++++++++++");
+
+  NRF_LOG_INFO("Gyro Y Axis: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(gyro_scaled.y));
+  NRF_LOG_INFO("Gyro X Axis: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(gyro_scaled.x));
+  NRF_LOG_INFO("Gyro Z Axis: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(gyro_scaled.z));
+
+  NRF_LOG_INFO("------------------------------------------------------------");
 
   err_code = ble_bts_body_temp_update(&m_bts, m_human_body_temp, BLE_CONN_HANDLE_ALL);
   if ((err_code != NRF_SUCCESS) &&
