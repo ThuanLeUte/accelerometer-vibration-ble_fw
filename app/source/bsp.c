@@ -17,7 +17,6 @@
 
 /* Private defines ---------------------------------------------------- */
 #define TWI_INSTANCE         0
-#define SPI_INSTANCE         1
 
 /* Private enumerate/structure ---------------------------------------- */
 static nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(TWI_INSTANCE);
@@ -27,11 +26,13 @@ static nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(TWI_INSTANCE);
 /* Private variables -------------------------------------------------- */
 /* Private function prototypes ---------------------------------------- */
 static void m_bsp_i2c_init(void);
+static void m_bsp_gpio_init(void);
 
 /* Function definitions ----------------------------------------------- */
 void bsp_hw_init(void)
 {
   m_bsp_i2c_init();
+  m_bsp_gpio_init();
 }
 
 int bsp_i2c_write(uint8_t slave_addr, uint8_t reg_addr, uint8_t *p_data, uint32_t len)
@@ -59,15 +60,9 @@ void bsp_delay_ms(uint32_t ms)
 void bsp_gpio_write(uint8_t pin , uint8_t state)
 {
   if (0 == state)
-  {
     nrfx_gpiote_out_clear(pin);
-    NRF_LOG_INFO("nrfx_gpiote_out_clear");
-  }
   else
-  {
     nrfx_gpiote_out_set(pin);
-    NRF_LOG_INFO("nrfx_gpiote_out_set");
-  }
 }
 
 /* Private function definitions ---------------------------------------- */
@@ -97,6 +92,30 @@ static void m_bsp_i2c_init(void)
   APP_ERROR_CHECK(err_code);
 
   nrf_drv_twi_enable(&m_twi);
+}
+
+/**
+ * @brief         Gpio init
+ *
+ * @param[in]     None
+ *
+ * @attention     None
+ *
+ * @return        None
+ */
+static void m_bsp_gpio_init(void)
+{
+  ret_code_t err_code;
+
+  err_code = nrf_drv_gpiote_init();
+  APP_ERROR_CHECK(err_code);
+
+  // LCD pin config
+  nrf_drv_gpiote_out_config_t out_config = NRFX_GPIOTE_CONFIG_OUT_TASK_TOGGLE(true);
+  err_code = nrf_drv_gpiote_out_init(IO_MOTOR_VIBRATION, &out_config);
+  APP_ERROR_CHECK(err_code);
+
+  nrfx_gpiote_out_set(IO_MOTOR_VIBRATION);
 }
 
 /* End of file -------------------------------------------------------- */

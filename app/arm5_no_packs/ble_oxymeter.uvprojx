@@ -404,16 +404,6 @@
               <FilePath>..\source\bsp.c</FilePath>
             </File>
             <File>
-              <FileName>sys_temp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\sys_temp.c</FilePath>
-            </File>
-            <File>
-              <FileName>max30205.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\max30205.c</FilePath>
-            </File>
-            <File>
               <FileName>bsp_accel.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\bsp_accel.c</FilePath>
@@ -4059,16 +4049,6 @@
               <FileName>bsp.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\source\bsp.c</FilePath>
-            </File>
-            <File>
-              <FileName>sys_temp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\sys_temp.c</FilePath>
-            </File>
-            <File>
-              <FileName>max30205.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\source\max30205.c</FilePath>
             </File>
             <File>
               <FileName>bsp_accel.c</FileName>

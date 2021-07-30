@@ -27,14 +27,7 @@ extern "C" {
 // PIN NAME PORT 0 ``````````````````````````````
 #define IO_I2C0_SCL             (11)    // SCL signal pin
 #define IO_I2C0_SDA             (12)    // SDA signal pin
-#define IO_OB1203_INTR          (13)    // OB1203 interrupt pin
-#define IO_LCD_BACKLIGHT        (25)    // LCD backlight control
-#define IO_LCD_RST              (26)    // LCD reset - Active Low
-#define IO_LCD_DC               (27)    // LCD display data - command
-#define IO_LCD_SCL              (28)    // LCD clock
-#define IO_LCD_SDA              (29)    // LCD data
-#define IO_LCD_CS               (30)    // LCD chip select - Active Low
-#define IO_LCD_POWER            (31)    // LCD power control
+#define IO_MOTOR_VIBRATION      (31)    // Motor vibration
 
 /* Public enumerate/structure ----------------------------------------- */
 /* Public macros ------------------------------------------------------ */

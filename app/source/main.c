@@ -31,7 +31,6 @@
 #include "nrf_delay.h"
 
 #include "sys_bm.h"
-#include "sys_temp.h"
 #include "ble_bas.h"
 #include "ble_dis.h"
 #include "ble_body_temp_service.h"
