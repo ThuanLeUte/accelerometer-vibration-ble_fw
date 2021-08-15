@@ -110,12 +110,10 @@ static void m_bsp_gpio_init(void)
   err_code = nrf_drv_gpiote_init();
   APP_ERROR_CHECK(err_code);
 
-  // LCD pin config
+  // Motor vibration config
   nrf_drv_gpiote_out_config_t out_config = NRFX_GPIOTE_CONFIG_OUT_TASK_TOGGLE(true);
   err_code = nrf_drv_gpiote_out_init(IO_MOTOR_VIBRATION, &out_config);
   APP_ERROR_CHECK(err_code);
-
-  nrfx_gpiote_out_set(IO_MOTOR_VIBRATION);
 }
 
 /* End of file -------------------------------------------------------- */

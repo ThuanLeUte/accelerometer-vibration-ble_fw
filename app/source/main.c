@@ -847,13 +847,30 @@ static void body_temp_update(void)
 {
   ret_code_t err_code;
   float m_human_body_temp = 0;
-  mis2dh_raw_data_t raw_data;
+  mis2dh_data_t raw_data;
 
-  bsp_accel_get_raw_data(&raw_data);
+  bsp_accel_get_raw_axis(&raw_data);
 
-  NRF_LOG_INFO( "X Axis: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(raw_data.x));
-  NRF_LOG_INFO( "Y Axis: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(raw_data.y));
-  NRF_LOG_INFO( "Z Axis: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(raw_data.z));
+  NRF_LOG_INFO("++++++++++++++++++++++++++++++++++++");
+  NRF_LOG_INFO("X Raw Axis: %d", raw_data.x);
+  NRF_LOG_INFO("Y Raw Axis: %d", raw_data.y);
+  NRF_LOG_INFO("Z Raw Axis: %d", raw_data.z);
+  NRF_LOG_INFO("++++++++++++++++++++++++++++++++++++");
+  NRF_LOG_INFO("");
+
+  if ((raw_data.y <= 15)  && (raw_data.z <= 15)  ||
+      (raw_data.y <= 15)  && (raw_data.z >= 240) ||
+      (raw_data.y >= 240) && (raw_data.z <= 15)  ||
+      (raw_data.y >= 240) && (raw_data.z >= 240))
+  {
+    bsp_gpio_write(IO_MOTOR_VIBRATION, 0);
+  }
+  else
+  {
+    bsp_gpio_write(IO_MOTOR_VIBRATION, 1);
+    bsp_delay_ms(100);
+    bsp_gpio_write(IO_MOTOR_VIBRATION, 0);
+  }
 
   err_code = ble_bts_body_temp_update(&m_bts, m_human_body_temp, BLE_CONN_HANDLE_ALL);
   if ((err_code != NRF_SUCCESS) &&
