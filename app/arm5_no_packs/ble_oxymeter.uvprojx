@@ -413,6 +413,11 @@
               <FileType>1</FileType>
               <FilePath>..\source\mis2dh.c</FilePath>
             </File>
+            <File>
+              <FileName>damos_ram.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\damos_ram.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1121,9 +1126,9 @@
               <FilePath>..\..\components\ble\ble_services\ble_dis\ble_dis.c</FilePath>
             </File>
             <File>
-              <FileName>ble_body_temp_service.c</FileName>
+              <FileName>ble_vrs.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\ble_body_temp_service.c</FilePath>
+              <FilePath>..\source\ble_vrs.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4060,6 +4065,11 @@
               <FileType>1</FileType>
               <FilePath>..\source\mis2dh.c</FilePath>
             </File>
+            <File>
+              <FileName>damos_ram.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\damos_ram.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -4768,9 +4778,9 @@
               <FilePath>..\..\components\ble\ble_services\ble_dis\ble_dis.c</FilePath>
             </File>
             <File>
-              <FileName>ble_body_temp_service.c</FileName>
+              <FileName>ble_vrs.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\ble_body_temp_service.c</FilePath>
+              <FilePath>..\source\ble_vrs.c</FilePath>
             </File>
           </Files>
         </Group>
